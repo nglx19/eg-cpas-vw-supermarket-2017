@@ -25,12 +25,14 @@ public class ControllerLogic : MonoBehaviour {
 
 	// Use this for initialization
 	void Start () {
-		speed = 1;
+		speed = 0;
 		updateIndicator (speed);
 	}
 	
 	// Update is called once per frame
 	void Update () {
+		//Use  mouse Y to set indicator
+		updateIndicator((int)(Mathf.Abs(Input.GetAxis("Mouse Y")+Input.GetAxis("Mouse X"))/0.4));
 		if (Input.GetKeyDown (KeyCode.LeftArrow)) {
 			decreaseSpeed ();
 		} else if (Input.GetKeyDown (KeyCode.RightArrow)) {

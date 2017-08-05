@@ -10,6 +10,8 @@ public class ShoppingItem
     public bool m_isHigh;
     public string m_mesh;
 
+
+
     public ShoppingItem(string name, Vector3 location, bool isHigh, string mesh)
     {
         m_name = name;
@@ -50,6 +52,20 @@ public class GameManager : MonoBehaviour
     private GameObject targetObjects;
     private bool gameCompleted;
 
+	[HideInInspector]
+	public int m_action; 
+	//0: idle, 
+	//1: right-click (used for minus), 
+	//2: left-click (used for plus),
+	//3: left-dbl-click (used for cancel)
+	//4: left-click-hold (used for ok)
+	private float clickStart = 0;
+	private int doubleClick = 0;
+	private float doubleClickStart = 0;
+	private float dblClickTime = 2.5f;
+	private int holdTime = 10;
+	private bool isHolding = false;
+	//use the action performer functions to return m_action to 0
 
     public GameObject playerController;
     public Text textGUI;
@@ -93,6 +109,7 @@ public class GameManager : MonoBehaviour
         playerTransform = playerController.transform;
 
         //Debug.Log(playerTransform.transform.position.ToString());
+		m_action = 0;
 
     }
 
@@ -118,9 +135,64 @@ public class GameManager : MonoBehaviour
             //Debug.Log("Please find " + currItem.m_name);
             //Debug.Log(debugSphere.transform.position.ToString());
         }
-
-
+			
+		if (Input.GetMouseButtonDown (0) || Input.GetMouseButtonDown (1))
+			getActionFromMouseButtonDown();
+		if (Input.GetMouseButtonUp (0))
+			getActionFromMouseButtonUp ();
+			checkForHoldAction();
+		if (m_action > 0) {
+			Debug.Log ("Action is " + m_action.ToString ());
+			m_action = 0;
+		}
     }
+
+	void getActionFromMouseButtonDown()
+	{
+		if (Input.GetMouseButtonDown (1)) {
+			m_action = 1;
+			return;
+		}
+		else if (Input.GetMouseButtonDown (0)) {
+			clickStart = Time.time*10;
+			isHolding = true;
+			return;
+		}
+	}
+
+	void getActionFromMouseButtonUp()
+	{
+		isHolding = false;
+		if (doubleClick == 0) {
+			doubleClickStart = Time.time * 10;
+			doubleClick++;
+			//Debug.Log ((Time.time * 10 - clickStart).ToString ());
+			if (Time.time * 10 - clickStart > 2.5f) {
+				doubleClick = 0;
+				m_action = 2;
+				return;
+			}
+		} else if (doubleClick == 1) {
+			doubleClick = 0;
+			//Debug.Log ((Time.time * 10 - doubleClickStart).ToString ());
+			if (Time.time*10 - doubleClickStart < dblClickTime) {
+				m_action = 3;
+				return;
+			} else {
+				m_action = 2;
+				return;
+			}
+		}
+	}
+
+	void checkForHoldAction()
+	{
+		if (Time.time * 10 - clickStart > holdTime && isHolding) {
+			m_action = 4;
+			isHolding = false;
+			return;
+		} 
+	}
 
     public int UniqueRandomInt(int min, int max)
     {
