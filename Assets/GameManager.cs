@@ -32,7 +32,7 @@ public class GameManager : MonoBehaviour
         new ShoppingItem( "CHICKEN", new Vector3(-19.7f,1.0f,-32.20f), false, "mesh_food_02"),
         new ShoppingItem( "CHOCOLATE", new Vector3(-19.7f,1.0f,-41.0f), false, "mesh_food_03"),
         new ShoppingItem( "MILK", new Vector3(-18.30f,1.0f,-53.0f), false, "mesh_food_04"),
-        new ShoppingItem( "ORANGE JUICE", new Vector3(-13.0f,1.0f,-45.70f), false, "mesh_food_05"),
+        new ShoppingItem( "JUICE", new Vector3(-13.0f,1.0f,-45.70f), false, "mesh_food_05"),
         new ShoppingItem( "CEREALS", new Vector3(-9.20f,1.0f,-35.70f), false, "mesh_food_06"),
         new ShoppingItem( "BUTTER", new Vector3(-7.30f,1.0f,-45.60f), false, "mesh_food_07"),
         new ShoppingItem( "FISH", new Vector3(-1.40f,1.0f,-46.30f), false, "mesh_food_08"),
@@ -50,6 +50,7 @@ public class GameManager : MonoBehaviour
     private int currIdx;
     private Transform playerTransform;
     private GameObject targetObjects;
+    private GameObject targetObjectsImage;
     private bool gameCompleted;
 
 	[HideInInspector]
@@ -69,6 +70,8 @@ public class GameManager : MonoBehaviour
 
     public GameObject playerController;
     public Text textGUI;
+    public Text scoreText;
+    public int items;
 
     public ShoppingItem[] AllList
     {
@@ -88,20 +91,24 @@ public class GameManager : MonoBehaviour
     {
         gameCompleted = false;
         currIdx = 0;
-        shoppingItems = new ShoppingItem[10];
-        for (int i = 0; i < 10; i++)
+        shoppingItems = new ShoppingItem[items];
+        for (int i = 0; i < items; i++)
         {
-            int x = UniqueRandomInt(0, 10);
+            int x = UniqueRandomInt(0, items);
             shoppingItems[i] = AllList[x];
             usedValues.Add(x);
             //Debug.Log(shoppingItems[i].m_name);
         }
         targetObjects = transform.Find("TargetObjects").gameObject;
 
+        targetObjectsImage = transform.Find("TargetObjectsForImage").gameObject;
+
         currItem = shoppingItems[currIdx];
         targetObjects.transform.position = currItem.m_location;
         ShowItem (currItem.m_name, targetObjects);
+        ShowItem(currItem.m_name, targetObjectsImage);
         textGUI.text = ("Please find " + currItem.m_name);
+        scoreText.text = "0 / " + items.ToString();
 
         //Debug.Log(currItem.m_name);
         //Debug.Log(debugSphere.transform.position.ToString());
@@ -122,15 +129,19 @@ public class GameManager : MonoBehaviour
             //Debug.Log(currItem.m_name + " has been found!");
             textGUI.text = (currItem.m_name + " has been found!");
             currIdx++;
+            scoreText.text = currIdx.ToString() + " / " + items.ToString();
             if (currIdx >= 10)
             {
                 gameCompleted = true;
+                textGUI.text = ("Game Completed!");
+                return;
             }
 
             currIdx %= 10;
             currItem = shoppingItems[currIdx];
             targetObjects.transform.position = currItem.m_location;
             ShowItem (currItem.m_name, targetObjects);
+            ShowItem(currItem.m_name, targetObjectsImage);
             textGUI.text = ("Please find " + currItem.m_name);
             //Debug.Log("Please find " + currItem.m_name);
             //Debug.Log(debugSphere.transform.position.ToString());
@@ -212,7 +223,8 @@ public class GameManager : MonoBehaviour
                 t.gameObject.SetActive(true);
             }
             else{
-                t.gameObject.SetActive(false);
+                if (t.name != "Camera")
+                    t.gameObject.SetActive(false);
             }
         }
     }

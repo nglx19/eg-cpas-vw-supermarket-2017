@@ -1,0 +1,21 @@
+fileFormatVersion: 2
+guid: b4ce431fa6a87d14f92c0d12edb30264
+timeCreated: 1502813248
+licenseType: Free
+TrueTypeFontImporter:
+  serializedVersion: 4
+  fontSize: 16
+  forceTextureCase: -2
+  characterSpacing: 0
+  characterPadding: 1
+  includeFontData: 1
+  fontName: Naughty Squirrel Demo
+  fontNames:
+  - Naughty Squirrel Demo
+  fallbackFontReferences: []
+  customCharacters: 
+  fontRenderingMode: 0
+  ascentCalculationMode: 1
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 
