@@ -41,6 +41,7 @@ namespace UnityStandardAssets.Characters.FirstPerson
         private float m_NextStep;
         private bool m_Jumping;
         private AudioSource m_AudioSource;
+        public bool useKeyboard;
         //private bool m_ChangeDir;
         //private float m_PrevVertical;
 
@@ -109,7 +110,8 @@ namespace UnityStandardAssets.Characters.FirstPerson
                                m_CharacterController.height/2f, Physics.AllLayers, QueryTriggerInteraction.Ignore);
             desiredMove = Vector3.ProjectOnPlane(desiredMove, hitInfo.normal).normalized;
 
-			speed *= (Mathf.Abs(Input.GetAxis ("Mouse Y") + Input.GetAxis ("Mouse X"))) / 4.0f;
+            if (!useKeyboard) speed *= (Mathf.Abs(Input.GetAxis("Mouse Y") + Input.GetAxis("Mouse X"))) / 4.0f;
+            else speed /= 2;
 
 			m_MoveDir.x = desiredMove.x*speed;
             m_MoveDir.z = desiredMove.z*speed;
@@ -210,9 +212,12 @@ namespace UnityStandardAssets.Characters.FirstPerson
         private void GetInput(out float speed)
         {
             // Read input
-            float horizontal = CrossPlatformInputManager.GetAxis("Horizontal");
-            float vertical = CrossPlatformInputManager.GetAxis("Vertical");
+            //float horizontal = CrossPlatformInputManager.GetAxis("Horizontal");
+            //float vertical = CrossPlatformInputManager.GetAxis("Vertical");
+            float horizontal = Input.GetAxis("Horizontal");
+            float vertical = Input.GetAxis("Vertical");
 
+            Debug.Log("horizontal" + horizontal.ToString("G4") + " vertical" + vertical.ToString("G4"));
             /*if (vertical != 0.0f)
                 m_ChangeDir = vertical * m_PrevVertical > 0 ? false : true;
             else
