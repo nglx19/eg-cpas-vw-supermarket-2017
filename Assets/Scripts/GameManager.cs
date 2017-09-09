@@ -73,6 +73,8 @@ public class GameManager : MonoBehaviour
     public Text scoreText;
     public int items;
 
+    private AudioSource hornSound;
+
     public ShoppingItem[] AllList
     {
         get
@@ -89,6 +91,7 @@ public class GameManager : MonoBehaviour
     // Use this for initialization
     void Start()
     {
+        hornSound = GetComponent<AudioSource>();
         gameCompleted = false;
         currIdx = 0;
         shoppingItems = new ShoppingItem[items];
@@ -153,9 +156,24 @@ public class GameManager : MonoBehaviour
 			getActionFromMouseButtonUp ();
 			checkForHoldAction();
 		if (m_action > 0) {
-			Debug.Log ("Action is " + m_action.ToString ());
+			//Debug.Log ("Action is " + m_action.ToString ());
+            switch (m_action)
+            {
+                case 1: //right click (left button)
+                    Debug.Log("Action is OK");
+                    break;
+                case 2: //left click (right button)
+                    hornSound.Play();
+                    Debug.Log("Action is Horn");
+                    break;
+                
+
+            }
 			m_action = 0;
 		}
+
+        if (Input.GetKey("q"))
+            Application.Quit();
     }
 
 	void getActionFromMouseButtonDown()

@@ -217,7 +217,7 @@ namespace UnityStandardAssets.Characters.FirstPerson
             float horizontal = Input.GetAxis("Horizontal");
             float vertical = Input.GetAxis("Vertical");
 
-            Debug.Log("horizontal" + horizontal.ToString("G4") + " vertical" + vertical.ToString("G4"));
+            //Debug.Log("horizontal" + horizontal.ToString("G4") + " vertical" + vertical.ToString("G4"));
             /*if (vertical != 0.0f)
                 m_ChangeDir = vertical * m_PrevVertical > 0 ? false : true;
             else
@@ -268,6 +268,8 @@ namespace UnityStandardAssets.Characters.FirstPerson
         private void OnControllerColliderHit(ControllerColliderHit hit)
         {
             Rigidbody body = hit.collider.attachedRigidbody;
+            if (body)
+                Debug.Log(body.name);
             //dont move the rigidbody if the character is on top of it
             if (m_CollisionFlags == CollisionFlags.Below)
             {
