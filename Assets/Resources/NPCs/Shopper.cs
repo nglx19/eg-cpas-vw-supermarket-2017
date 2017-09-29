@@ -15,6 +15,9 @@ public class Shopper : MonoBehaviour {
 
     private Transform target;
 
+    private AnimationState savedState;
+    private bool isInterrupted = false;
+
     // Use this for initialization
     void Start () {
         agent = GetComponent<NavMeshAgent>();
@@ -37,6 +40,7 @@ public class Shopper : MonoBehaviour {
         states = list.ToArray();
 
         SetAnimationState(AnimationState.isWalking);
+        isInterrupted = false;
     }
 
     void SetAnimationState(AnimationState value)
@@ -52,8 +56,26 @@ public class Shopper : MonoBehaviour {
         state = value;
     }
 
+    public void InterruptMovement(float interruptTime)
+    {
+        if (isInterrupted) return;
+        savedState = state;
+        SetAnimationState(AnimationState.isIdling);
+        agent.isStopped = true;
+        isInterrupted = true;
+        Invoke("ResumeMovement", interruptTime);
+    }
+
+    void ResumeMovement()
+    {
+        SetAnimationState(savedState);
+        agent.isStopped = false;
+        isInterrupted = false;
+    }
+
     // Update is called once per frame
     void Update () {
+        if (isInterrupted) return;
         if (!agent.pathPending)
         {
             if (agent.remainingDistance <= agent.stoppingDistance)

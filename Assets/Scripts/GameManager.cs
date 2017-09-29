@@ -10,8 +10,6 @@ public class ShoppingItem
     public bool m_isHigh;
     public string m_mesh;
 
-
-
     public ShoppingItem(string name, Vector3 location, bool isHigh, string mesh)
     {
         m_name = name;
@@ -73,6 +71,12 @@ public class GameManager : MonoBehaviour
     public Text scoreText;
     public int items;
 
+    public float maxInterruptTime = 10f; //in seconds
+    public float interruptRadius = 3f; //in metres 
+
+    public Shopper[] shoppers;
+    
+
     private AudioSource hornSound;
 
     public ShoppingItem[] AllList
@@ -87,6 +91,16 @@ public class GameManager : MonoBehaviour
             allList = value;
         }
     }
+
+    void InterruptShoppers()
+    {
+        foreach (Shopper shopper in shoppers)
+        {
+            if(Vector3.Distance(shopper.transform.position, playerController.transform.position) < interruptRadius)
+                shopper.InterruptMovement(Random.Range(0f, maxInterruptTime));
+        }
+    }
+
 
     // Use this for initialization
     void Start()
@@ -165,6 +179,7 @@ public class GameManager : MonoBehaviour
                 case 2: //left click (right button)
                     hornSound.Play();
                     Debug.Log("Action is Horn");
+                    InterruptShoppers();
                     break;
                 
 
