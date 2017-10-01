@@ -71,6 +71,9 @@ public class GameManager : MonoBehaviour
     public Text scoreText;
     public int items;
 
+    public int hitPeople = 0;
+    public int hitEnvironment = 0;
+
     public float maxInterruptTime = 10f; //in seconds
     public float interruptRadius = 3f; //in metres 
 
@@ -101,6 +104,10 @@ public class GameManager : MonoBehaviour
         }
     }
 
+    public void InterruptShopper(Shopper shopper)
+    {
+        if(shopper != null) shopper.InterruptMovement(Random.Range(0f, maxInterruptTime));
+    }
 
     // Use this for initialization
     void Start()
@@ -261,5 +268,4 @@ public class GameManager : MonoBehaviour
             }
         }
     }
-
 }
