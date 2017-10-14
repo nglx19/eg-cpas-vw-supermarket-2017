@@ -26,15 +26,15 @@ public class GameManager : MonoBehaviour
 
     private ShoppingItem[] allList = new ShoppingItem[] {
         new ShoppingItem( "COOKIES", new Vector3(-19.7f,1.0f,-17.50f), false, "mesh_food_00"),
-        new ShoppingItem( "PIZZA", new Vector3(-19.7f,1.0f,-24.80f), false, "mesh_food_01"),
-        new ShoppingItem( "CHICKEN", new Vector3(-19.7f,1.0f,-32.20f), false, "mesh_food_02"),
+        new ShoppingItem( "PIZZA", new Vector3(-18.30f,1.0f,-53.0f), false, "mesh_food_01"),
+        new ShoppingItem( "CHICKEN", new Vector3(4.5f,1.0f,-45.20f), false, "mesh_food_02"),
         new ShoppingItem( "CHOCOLATE", new Vector3(-19.7f,1.0f,-41.0f), false, "mesh_food_03"),
-        new ShoppingItem( "MILK", new Vector3(-18.30f,1.0f,-53.0f), false, "mesh_food_04"),
+        new ShoppingItem( "MILK", new Vector3(3.0f,1.0f,-33.20f), false, "mesh_food_04"),
         new ShoppingItem( "JUICE", new Vector3(-13.0f,1.0f,-45.70f), false, "mesh_food_05"),
-        new ShoppingItem( "CEREALS", new Vector3(-9.20f,1.0f,-35.70f), false, "mesh_food_06"),
+        new ShoppingItem( "CEREALS", new Vector3(-19.7f,1.0f,-24.80f), false, "mesh_food_06"),
         new ShoppingItem( "BUTTER", new Vector3(-7.30f,1.0f,-45.60f), false, "mesh_food_07"),
-        new ShoppingItem( "FISH", new Vector3(-1.40f,1.0f,-46.30f), false, "mesh_food_08"),
-        new ShoppingItem( "SWEETS", new Vector3(4.50f,1.0f,-42.20f), false, "mesh_food_09"),
+        new ShoppingItem( "FISH", new Vector3(4.50f,1.0f,-21.90f), false, "mesh_food_08"),
+        new ShoppingItem( "SWEETS", new Vector3(-7.3f,1.0f,-42.20f), false, "mesh_food_09"),
         new ShoppingItem( "APPLE", new Vector3(4.0f,1.0f,-21.90f), false, "mesh_food_10"),
         new ShoppingItem( "ORANGE", new Vector3(-2.9f,1.0f,-24.40f), false, "mesh_food_11"),
         new ShoppingItem( "BANANA", new Vector3(-8.5f,1.0f,-26.0f), false, "mesh_food_12"),
@@ -51,27 +51,27 @@ public class GameManager : MonoBehaviour
     private GameObject targetObjectsImage;
     private bool gameCompleted;
 
-	[HideInInspector]
-	public int m_action; 
-	//0: idle, 
-	//1: right-click (used for minus), 
-	//2: left-click (used for plus),
-	//3: left-dbl-click (used for cancel)
-	//4: left-click-hold (used for ok)
-	private float clickStart = 0;
-	private int doubleClick = 0;
-	private float doubleClickStart = 0;
-	private float dblClickTime = 2.5f;
-	private int holdTime = 10;
-	private bool isHolding = false;
-	//use the action performer functions to return m_action to 0
+    [HideInInspector]
+    public int m_action;
+    //0: idle, 
+    //1: right-click (used for minus), 
+    //2: left-click (used for plus),
+    //3: left-dbl-click (used for cancel)
+    //4: left-click-hold (used for ok)
+    private float clickStart = 0;
+    private int doubleClick = 0;
+    private float doubleClickStart = 0;
+    private float dblClickTime = 2.5f;
+    private int holdTime = 10;
+    private bool isHolding = false;
+    //use the action performer functions to return m_action to 0
 
     public GameObject playerController;
     public Text textGUI;
     public Text scoreText;
     public int items;
 
-    
+
     public GameObject IntroPanel;
     public GameObject DirectionsTUI;
     public GameObject ItemsTUI;
@@ -81,6 +81,7 @@ public class GameManager : MonoBehaviour
     public GameObject WarningShelfUI;
     public GameObject WarningHornUI;
     public GameObject CompletePanel;
+    public Text hitText;
     private bool tutCompleted = false;
 
     private GameObject[] tutUIs;
@@ -88,12 +89,15 @@ public class GameManager : MonoBehaviour
 
     public int hitPeople = 0;
     public int hitEnvironment = 0;
+    private int prevHitPeople = 0;
+    private int prevHitEnvironment = 0;
+    private float timeStart = 0.0f;
 
     public float maxInterruptTime = 10f; //in seconds
     public float interruptRadius = 3f; //in metres 
 
     public Shopper[] shoppers;
-    
+
 
     private AudioSource[] allSounds;
 
@@ -115,14 +119,14 @@ public class GameManager : MonoBehaviour
     {
         foreach (Shopper shopper in shoppers)
         {
-            if(Vector3.Distance(shopper.transform.position, playerController.transform.position) < interruptRadius)
+            if (Vector3.Distance(shopper.transform.position, playerController.transform.position) < interruptRadius)
                 shopper.InterruptMovement(Random.Range(0f, maxInterruptTime));
         }
     }
 
     public void InterruptShopper(Shopper shopper)
     {
-        if(shopper != null) shopper.InterruptMovement(Random.Range(0f, maxInterruptTime));
+        if (shopper != null) shopper.InterruptMovement(Random.Range(0f, maxInterruptTime));
     }
 
     // Use this for initialization
@@ -145,7 +149,7 @@ public class GameManager : MonoBehaviour
 
         currItem = shoppingItems[currIdx];
         targetObjects.transform.position = currItem.m_location;
-        ShowItem (currItem.m_name, targetObjects);
+        ShowItem(currItem.m_name, targetObjects);
         ShowItem(currItem.m_name, targetObjectsImage);
         textGUI.text = ("Please find " + currItem.m_name);
         scoreText.text = "0 / " + items.ToString();
@@ -156,9 +160,9 @@ public class GameManager : MonoBehaviour
         playerTransform = playerController.transform;
 
         //Debug.Log(playerTransform.transform.position.ToString());
-		m_action = 0;
+        m_action = 0;
 
-        tutUIs = new GameObject[] { IntroPanel, DirectionsTUI, ItemsTUI, MapTUI, RearMirrorTUI};
+        tutUIs = new GameObject[] { IntroPanel, DirectionsTUI, ItemsTUI, MapTUI, RearMirrorTUI };
     }
 
     // Update is called once per frame
@@ -191,7 +195,8 @@ public class GameManager : MonoBehaviour
                 {
                     gameCompleted = true;
                     HideAllItems(targetObjects);
-                    textGUI.text = ("Game Completed!");                 
+                    textGUI.text = "Game Completed!";
+                    hitText.text = "No. of hits:\n\t\t" + hitPeople + " (people)\n\t\t" + hitEnvironment + " (env)";
                     CompletePanel.SetActive(true);
                     allSounds[3].Play();
                     return;
@@ -203,8 +208,32 @@ public class GameManager : MonoBehaviour
                 ShowItem(currItem.m_name, targetObjects);
                 ShowItem(currItem.m_name, targetObjectsImage);
                 textGUI.text = ("Please find " + currItem.m_name);
+
                 //Debug.Log("Please find " + currItem.m_name);
                 //Debug.Log(debugSphere.transform.position.ToString());
+            }
+
+            //Check if hit environment (show warning message for three seconds)
+            if (hitEnvironment != prevHitEnvironment)
+            {
+                //WarningShelfUI.SetActive(true);
+                if (timeStart < 1.0f)
+                {
+                    timeStart = Time.time;
+                    allSounds[4].Play();
+                }
+                if (Time.time < timeStart + 3.0f)
+                {
+                    //Debug.Log("start" + Time.time.ToString() + timeStart.ToString());
+                    WarningShelfUI.SetActive(true);
+                }
+                else
+                {
+                    //Debug.Log("end");
+                    WarningShelfUI.SetActive(false);
+                    prevHitEnvironment = hitEnvironment;
+                    timeStart = 0.0f;
+                }
             }
         }
 
@@ -236,57 +265,67 @@ public class GameManager : MonoBehaviour
             }
             m_action = 0;
         }
-        
+
         if (Input.GetKey("q"))
             Application.Quit();
     }
 
-	void getActionFromMouseButtonDown()
-	{
-		if (Input.GetMouseButtonDown (1)) {
-			m_action = 1;
-			return;
-		}
-		else if (Input.GetMouseButtonDown (0)) {
-			clickStart = Time.time*10;
-			isHolding = true;
-			return;
-		}
-	}
+    void getActionFromMouseButtonDown()
+    {
+        if (Input.GetMouseButtonDown(1))
+        {
+            m_action = 1;
+            return;
+        }
+        else if (Input.GetMouseButtonDown(0))
+        {
+            clickStart = Time.time * 10;
+            isHolding = true;
+            return;
+        }
+    }
 
-	void getActionFromMouseButtonUp()
-	{
-		isHolding = false;
-		if (doubleClick == 0) {
-			doubleClickStart = Time.time * 10;
-			doubleClick++;
-			//Debug.Log ((Time.time * 10 - clickStart).ToString ());
-			if (Time.time * 10 - clickStart > 2.5f) {
-				doubleClick = 0;
-				m_action = 2;
-				return;
-			}
-		} else if (doubleClick == 1) {
-			doubleClick = 0;
-			//Debug.Log ((Time.time * 10 - doubleClickStart).ToString ());
-			if (Time.time*10 - doubleClickStart < dblClickTime) {
-				m_action = 3;
-				return;
-			} else {
-				m_action = 2;
-				return;
-			}
-		}
-	}
+    void getActionFromMouseButtonUp()
+    {
+        isHolding = false;
+        if (doubleClick == 0)
+        {
+            doubleClickStart = Time.time * 10;
+            doubleClick++;
+            //Debug.Log ((Time.time * 10 - clickStart).ToString ());
+            if (Time.time * 10 - clickStart > 2.5f)
+            {
+                doubleClick = 0;
+                m_action = 2;
+                return;
+            }
+        }
+        else if (doubleClick == 1)
+        {
+            doubleClick = 0;
+            //Debug.Log ((Time.time * 10 - doubleClickStart).ToString ());
+            if (Time.time * 10 - doubleClickStart < dblClickTime)
+            {
+                m_action = 3;
+                return;
+            }
+            else
+            {
+                m_action = 2;
+                return;
+            }
+        }
+    }
 
-	void checkForHoldAction()
-	{
-		if (Time.time * 10 - clickStart > holdTime && isHolding) {
-			m_action = 4;
-			isHolding = false;
-			return;
-		} 
-	}
+    void checkForHoldAction()
+    {
+        if (Time.time * 10 - clickStart > holdTime && isHolding)
+        {
+            m_action = 4;
+            isHolding = false;
+            return;
+        }
+    }
 
     public int UniqueRandomInt(int min, int max)
     {
@@ -302,10 +341,12 @@ public class GameManager : MonoBehaviour
     {
         foreach (Transform t in target.transform)
         {
-            if (t.name == name) {
+            if (t.name == name)
+            {
                 t.gameObject.SetActive(true);
             }
-            else{
+            else
+            {
                 if (t.name != "Camera")
                     t.gameObject.SetActive(false);
             }
