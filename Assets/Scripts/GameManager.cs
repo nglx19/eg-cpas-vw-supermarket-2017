@@ -71,6 +71,21 @@ public class GameManager : MonoBehaviour
     public Text scoreText;
     public int items;
 
+    
+    public GameObject IntroPanel;
+    public GameObject DirectionsTUI;
+    public GameObject ItemsTUI;
+    public GameObject MapTUI;
+    public GameObject RearMirrorTUI;
+    public GameObject HintHornUI;
+    public GameObject WarningShelfUI;
+    public GameObject WarningHornUI;
+    public GameObject CompletePanel;
+    private bool tutCompleted = false;
+
+    private GameObject[] tutUIs;
+    private int tutIdx = 0;
+
     public int hitPeople = 0;
     public int hitEnvironment = 0;
 
@@ -80,7 +95,8 @@ public class GameManager : MonoBehaviour
     public Shopper[] shoppers;
     
 
-    private AudioSource hornSound;
+    private AudioSource[] allSounds;
+
 
     public ShoppingItem[] AllList
     {
@@ -112,7 +128,7 @@ public class GameManager : MonoBehaviour
     // Use this for initialization
     void Start()
     {
-        hornSound = GetComponent<AudioSource>();
+        allSounds = GetComponents<AudioSource>();
         gameCompleted = false;
         currIdx = 0;
         shoppingItems = new ShoppingItem[items];
@@ -142,58 +158,85 @@ public class GameManager : MonoBehaviour
         //Debug.Log(playerTransform.transform.position.ToString());
 		m_action = 0;
 
+        tutUIs = new GameObject[] { IntroPanel, DirectionsTUI, ItemsTUI, MapTUI, RearMirrorTUI};
     }
 
     // Update is called once per frame
     void Update()
     {
-        //Debug.Log(playerTransform.transform.position.ToString());
-        if ((playerTransform.transform.position - targetObjects.transform.position).sqrMagnitude < 1.5 && !gameCompleted)
-        {
-            //Debug.Log(currItem.m_name + " has been found!");
-            textGUI.text = (currItem.m_name + " has been found!");
-            currIdx++;
-            scoreText.text = currIdx.ToString() + " / " + items.ToString();
-            if (currIdx >= 10)
-            {
-                gameCompleted = true;
-                textGUI.text = ("Game Completed!");
-                return;
-            }
 
-            currIdx %= 10;
-            currItem = shoppingItems[currIdx];
-            targetObjects.transform.position = currItem.m_location;
-            ShowItem (currItem.m_name, targetObjects);
-            ShowItem(currItem.m_name, targetObjectsImage);
-            textGUI.text = ("Please find " + currItem.m_name);
-            //Debug.Log("Please find " + currItem.m_name);
-            //Debug.Log(debugSphere.transform.position.ToString());
+        if (!tutCompleted)
+        {
+            for (int i = 0; i < tutUIs.Length; i++)
+            {
+                if (i == tutIdx)
+                    tutUIs[i].SetActive(true);
+                else
+                    tutUIs[i].SetActive(false);
+            }
+            if (tutIdx > 4)
+                tutCompleted = true;
         }
-			
-		if (Input.GetMouseButtonDown (0) || Input.GetMouseButtonDown (1))
-			getActionFromMouseButtonDown();
-		if (Input.GetMouseButtonUp (0))
-			getActionFromMouseButtonUp ();
-			checkForHoldAction();
-		if (m_action > 0) {
-			//Debug.Log ("Action is " + m_action.ToString ());
+        else
+        {
+            //Debug.Log(playerTransform.transform.position.ToString());
+            if ((playerTransform.transform.position - targetObjects.transform.position).sqrMagnitude < 1.5 && !gameCompleted)
+            {
+                //Debug.Log(currItem.m_name + " has been found!");
+                textGUI.text = (currItem.m_name + " has been found!");
+                allSounds[2].Play();
+                currIdx++;
+                scoreText.text = currIdx.ToString() + " / " + items.ToString();
+                if (currIdx >= 10)
+                {
+                    gameCompleted = true;
+                    HideAllItems(targetObjects);
+                    textGUI.text = ("Game Completed!");                 
+                    CompletePanel.SetActive(true);
+                    allSounds[3].Play();
+                    return;
+                }
+
+                currIdx %= 10;
+                currItem = shoppingItems[currIdx];
+                targetObjects.transform.position = currItem.m_location;
+                ShowItem(currItem.m_name, targetObjects);
+                ShowItem(currItem.m_name, targetObjectsImage);
+                textGUI.text = ("Please find " + currItem.m_name);
+                //Debug.Log("Please find " + currItem.m_name);
+                //Debug.Log(debugSphere.transform.position.ToString());
+            }
+        }
+
+        if (Input.GetMouseButtonDown(0) || Input.GetMouseButtonDown(1))
+            getActionFromMouseButtonDown();
+        if (Input.GetMouseButtonUp(0))
+            getActionFromMouseButtonUp();
+        checkForHoldAction();
+        if (m_action > 0)
+        {
+            if (!tutCompleted)
+            {
+                tutIdx++;
+
+            }
+            //Debug.Log ("Action is " + m_action.ToString ());
             switch (m_action)
             {
                 case 1: //right click (left button)
                     Debug.Log("Action is OK");
                     break;
                 case 2: //left click (right button)
-                    hornSound.Play();
+                    allSounds[0].Play();
                     Debug.Log("Action is Horn");
                     InterruptShoppers();
                     break;
-                
+
 
             }
-			m_action = 0;
-		}
-
+            m_action = 0;
+        }
+        
         if (Input.GetKey("q"))
             Application.Quit();
     }
@@ -263,6 +306,17 @@ public class GameManager : MonoBehaviour
                 t.gameObject.SetActive(true);
             }
             else{
+                if (t.name != "Camera")
+                    t.gameObject.SetActive(false);
+            }
+        }
+    }
+
+    void HideAllItems(GameObject target)
+    {
+        foreach (Transform t in target.transform)
+        {
+            {
                 if (t.name != "Camera")
                     t.gameObject.SetActive(false);
             }
