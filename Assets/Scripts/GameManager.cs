@@ -268,6 +268,9 @@ public class GameManager : MonoBehaviour
 
         if (Input.GetKey("q"))
             Application.Quit();
+
+        if (Input.GetKey("r"))
+            UnityEngine.SceneManagement.SceneManager.LoadScene(0);
     }
 
     void getActionFromMouseButtonDown()

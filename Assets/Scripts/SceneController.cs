@@ -7,7 +7,10 @@ public class SceneController: MonoBehaviour {
 	public float autoLoadNextLevelAfter;
 
 	void Start () {
-		if (autoLoadNextLevelAfter == 0) {
+        Cursor.visible = true;
+        Cursor.lockState = CursorLockMode.None;
+
+        if (autoLoadNextLevelAfter == 0) {
 			Debug.Log ("Level auto load disabled");
 		} else {
 			Invoke ("LoadNextLevel", autoLoadNextLevelAfter);
